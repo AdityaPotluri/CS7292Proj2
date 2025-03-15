@@ -178,10 +178,9 @@ void Allocator::reduce(std::vector<void*>& cache_lines, void* target, uint64_t t
         9: return S
     */
 
-    // while |S| > a 
+    //while |S| > a 
     while (cache_lines.size() > ways) {
-        // const size_t l = ways + 1;
-        // if (cache_lines.size() < l) break;
+        const size_t l = ways + 1;
 
         //  2: {T1, ..., Ta+1} ← split(S, a + 1)
         std::vector<std::pair<size_t, size_t>> group_ranges;
@@ -197,19 +196,18 @@ void Allocator::reduce(std::vector<void*>& cache_lines, void* target, uint64_t t
         }
 
         bool removed = false;
+        // iterate through all the groups
         for (const auto& [start, size] : group_ranges) {
             
             std::vector<void*> reduced_set;
             reduced_set.reserve(cache_lines.size() - size);
 
-            
             if (start > 0) {
                 reduced_set.insert(reduced_set.end(), 
                                  cache_lines.begin(), 
                                  cache_lines.begin() + start);
             }
 
-            
             const size_t end = start + size;
             if (end < cache_lines.size()) {
                 reduced_set.insert(reduced_set.end(),
@@ -217,25 +215,24 @@ void Allocator::reduce(std::vector<void*>& cache_lines, void* target, uint64_t t
                                  cache_lines.end());
             }
 
-           
             EvictionSet tester(reduced_set);
+
+            // necessary?
             tester.build_dll(); 
             
             std::array<uint64_t, SAMPLES> timings;
             tester.evict_and_time<Timer, SAMPLES>(timings, target);
 
-          
+            // cool lambda function heehehe
             bool valid = std::all_of(timings.begin(), timings.end(),
                                    [threshold](auto t) { return t >= threshold; });
 
             if (valid) {
-                cache_lines = std::move(reduced_set);
+                cache_lines = reduced_set;
                 removed = true;
                 break;  
             }
         }
-
-        if (!removed) break; 
     }
 
 

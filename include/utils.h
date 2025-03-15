@@ -66,6 +66,6 @@ void dump_evset(void* victim, std::vector<void*>& evset, PROCESSOR p)
     for (auto e: evset)
     {
         ret = get_set_slice((uint64_t)e, p);
-        printf("Eveset: [Phy] = 0x%lx, [Set] = %u, [Slice] = %u\n", std::get<0>(ret), std::get<1>(ret), std::get<2>(ret));
+        printf("Eveset: [VA] = 0x%lx, [Phy] = 0x%lx, [Set] = %u, [Slice] = %u\n", (uint64_t) e,  std::get<0>(ret), std::get<1>(ret), std::get<2>(ret));
     }
 }
